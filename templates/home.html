@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flow">
+  <span class="step">{{ ic.search|safe }} Aniqlash</span><span class="arr">→</span>
+  <span class="step">{{ ic.cpu|safe }} AI filtr baholaydi</span><span class="arr">→</span>
+  <span class="step ok">{{ ic.check|safe }} AI tasdiqladi (agent ko'rigiga)</span>
+  <span class="arr">·</span><span class="step bad">{{ ic.x|safe }} AI rad etdi</span>
+</div>
+<div class="stats">
+  <div class="stat"><div class="ic">{{ ic.video|safe }}</div><div class="n" id="s-cam">0</div><div class="l">Faol kamera</div></div>
+  <div class="stat"><div class="ic">{{ ic.layers|safe }}</div><div class="n" id="s-total">0</div><div class="l">Jami shubhali</div></div>
+  <div class="stat"><div class="ic">{{ ic.cpu|safe }}</div><div class="n" id="s-rec2" style="color:var(--acc)">0</div><div class="l">AI tavsiya qildi</div></div>
+  <div class="stat"><div class="ic">{{ ic.checkc|safe }}</div><div class="n" id="s-sent" style="color:var(--ok)">0</div><div class="l">AI tasdiqladi</div></div>
+</div>
+<div class="toolbar">
+  <h3>Shubhali hodisalar</h3>
+  <span class="spacer"></span>
+  <button class="btn ghost" id="autobtn" onclick="toggleAuto()">{{ ic.gear|safe }} Avtomatik tasdiqlash: <b id="autostate">…</b></button>
+  <button class="btn" onclick="sendRec()">{{ ic.check|safe }} Tavsiyalarni tasdiqlash (<span id="rec">0</span>)</button>
+</div>
+<div class="filterbar">
+  <button class="ftab active" data-f="ai" onclick="setFilter('ai',this)">{{ ic.cpu|safe }} AI tavsiya qilgan</button>
+  <button class="ftab" data-f="new" onclick="setFilter('new',this)">{{ ic.clock|safe }} Kutilmoqda</button>
+  <button class="ftab" data-f="sent" onclick="setFilter('sent',this)">{{ ic.checkc|safe }} Tasdiqlangan</button>
+  <button class="ftab" data-f="all" onclick="setFilter('all',this)">{{ ic.layers|safe }} Barchasi</button>
+</div>
+<div class="grid" id="grid"><div class="empty">Yuklanmoqda…</div></div>
+{% endblock %}
+{% block script %}<script src="{{ url_for('static', filename='js/home.js') }}"></script>{% endblock %}

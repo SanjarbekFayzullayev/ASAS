@@ -1,0 +1,7 @@
+# --- Asosiy kutubxonalar (hammasi bepul, ochiq kod) ---
+ultralytics>=8.2.0        # YOLOv8-pose: odam + skelet aniqlash (PyTorch bilan birga keladi)
+opencv-python>=4.8.0      # Kameradan kadr olish va chizish
+numpy>=1.24.0             # Matematik hisob-kitoblar
+requests>=2.31.0          # Telegram va Ollama bilan aloqa (HTTP)
+PyYAML>=6.0               # config.yaml ni o'qish
+python-dotenv>=1.0.0      # .env dan maxfiy tokenlarni o'qish

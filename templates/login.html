@@ -1,0 +1,37 @@
+<!doctype html><html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>ASAS — Kirish</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+ *{box-sizing:border-box;font-family:'Inter','Segoe UI',sans-serif;}
+ body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+   background:linear-gradient(135deg,#15122b,#3a2a6b 55%,#7c3aed);}
+ .box{background:#fff;border-radius:22px;padding:40px 36px;width:390px;max-width:92vw;
+   box-shadow:0 24px 70px rgba(0,0,0,.35);animation:up .4s ease;}
+ @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+ .logo{width:66px;height:66px;display:block;margin:0 auto 14px;filter:drop-shadow(0 4px 10px rgba(124,58,237,.4));}
+ h1{text-align:center;margin:0;font-size:28px;font-weight:800;letter-spacing:4px;color:#1E293B;}
+ .sub{text-align:center;color:#64748B;font-size:12px;letter-spacing:1px;margin:6px 0 28px;}
+ label{font-size:13px;color:#475569;font-weight:600;}
+ input{width:100%;padding:13px;margin:7px 0 16px;border:1px solid #E5E9F2;border-radius:11px;font-size:14px;}
+ input:focus{outline:0;border-color:#7C3AED;box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+ button{width:100%;padding:14px;border:0;border-radius:11px;background:linear-gradient(135deg,#6366F1,#9333EA);
+   color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;}
+ button:hover{filter:brightness(1.08);transform:translateY(-1px);}
+ .err{background:#FEF2F2;color:#DC2626;padding:11px;border-radius:9px;font-size:13px;text-align:center;margin-bottom:16px;}
+ .hint{text-align:center;color:#94A3B8;font-size:12px;margin-top:18px;}
+</style></head><body>
+ <form class="box" method="post">
+   <svg class="logo" viewBox="0 0 64 64" fill="none"><defs><linearGradient id="lg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse"><stop stop-color="#7C3AED"/><stop offset="1" stop-color="#C026D3"/></linearGradient></defs>
+     <circle cx="32" cy="32" r="26" fill="url(#lg)"/><circle cx="32" cy="32" r="15" fill="none" stroke="#fff" stroke-width="2.5" stroke-opacity=".9"/><circle cx="32" cy="32" r="6" fill="#fff"/>
+     <g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="32" y1="3" x2="32" y2="11"/><line x1="32" y1="53" x2="32" y2="61"/><line x1="3" y1="32" x2="11" y2="32"/><line x1="53" y1="32" x2="61" y2="32"/></g></svg>
+   <h1>ASAS</h1>
+   <div class="sub">AI XAVFSIZLIK PLATFORMASI</div>
+   {% if error %}<div class="err">{{ error }}</div>{% endif %}
+   <label>Login</label>
+   <input name="username" placeholder="admin" autofocus required>
+   <label>Parol</label>
+   <input name="password" type="password" placeholder="••••••••" required>
+   <button type="submit">Kirish</button>
+   <div class="hint">Demo kirish:  admin  /  asas2026</div>
+ </form>
+</body></html>

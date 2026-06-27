@@ -1,0 +1,76 @@
+# ============================================================
+#  Tizim sozlamalari. Bu faylni o'zgartirib tizimni moslang.
+# ============================================================
+
+# --- Kameralar ro'yxati ---
+# Bir nechta kamera qo'shsangiz bo'ladi. Har biri alohida oqimda kuzatiladi.
+#   source: USB kamera uchun raqam (0, 1, 2...),
+#           IP/RTSP kamera uchun to'liq manzil: "rtsp://login:parol@192.168.1.10:554/stream"
+cameras:
+  - name: "Asosiy kamera"
+    source: 0
+  # - name: "Hovli kamerasi"
+  #   source: "rtsp://admin:parol@192.168.1.64:554/Streaming/Channels/101"
+
+# --- Aniqlash (detection) sozlamalari ---
+detection:
+  model: "yolov8n-pose.pt"   # "n"=nano (eng tez, CPU uchun). Aniqroq: yolov8s-pose / yolov8m-pose
+  device: "cpu"              # GPU bo'lsa: "cuda" yoki "0"
+  conf: 0.40                 # Odamni aniqlash ishonch chegarasi (0..1)
+  keypoint_conf: 0.30        # Bitta skelet nuqtasini "ishonchli" deyish chegarasi
+  process_every_n_frames: 2  # Har necha kadrda bir marta tahlil (CPU yuk kamayadi). 1=har kadr
+  imgsz: 640                 # Model kirish o'lchami. Kichraytirish (480) tezroq, kamroq aniq
+
+  # --- "Yer bilan muloqot" hodisasini aniqlash mantiqi ---
+  hand_ground_ratio: 0.25    # Qo'l tananing pastki necha qismida bo'lsa "yerga yaqin" deyiladi (0.25 = pastki 25%)
+  torso_bend_angle: 45       # Tana tikkadan necha gradus egilsa "engashgan" deyiladi
+  knee_bend_angle: 110       # Tizza burchagi shundan kichik bo'lsa "cho'kkalagan" deyiladi
+  sustain_frames: 6          # Hodisa shuncha kadr davom etsa, haqiqiy deb tasdiqlanadi (yolg'on signalni kamaytiradi)
+  cooldown_seconds: 30       # Bitta ODAM (track ID) uchun ketma-ket xabarlar orasidagi minimal vaqt
+  global_cooldown_seconds: 10 # Kamera bo'yicha UMUMIY minimal vaqt (ID tez o'zgarsa ham spam bo'lmaydi). Kattalashtiring = kamroq xabar
+
+  # --- Harakatli "engashish" (yaqin kadr / stol oldida ham ishlaydi) ---
+  # Butun gavda ko'rinmasa ham yelka/boshning keskin pastga tushishini sezadi.
+  enable_motion_bend: true   # harakatli engashish aniqlovchini yoqish
+  drop_trigger_ratio: 0.18   # yelka kadr balandligining shuncha qismi pastga tushsa -> engashish (kichraytirsangiz sezgirroq)
+  drop_window_frames: 12     # "tik turish" holatini eslab turish oynasi (kadr)
+
+  # --- Hodisani TURGA ajratish: olish / qo'yish / ko'mish (TAJRIBAVIY) ---
+  # HALOL OGOHLANTIRISH: bitta arzon webkameradan bu uchtasini ishonchli ajratish
+  # juda qiyin (yolov8n COCO modeli qora paket, tugun, ko'milgan buyumni ko'rmaydi).
+  # Shuning uchun ko'p hodisalar "noaniq" bo'lishi mumkin — bu NORMAL.
+  # ANIQ "nima bo'ldi"ni bilish uchun pastdagi Ollama'ni yoqing (eng aniq usul).
+  # Agar noto'g'ri yorliqlar bezovta qilsa: classify_enabled: false qiling —
+  # u holda tizim faqat ishonchli "yer bilan muloqot" xabarini + rasmni yuboradi.
+  classify_enabled: true            # turga ajratishni yoqish/o'chirish
+  classify_model: "yolov8n.pt"      # ikkinchi (obyekt aniqlash) model
+  classify_imgsz: 480               # tejamkorlik uchun kichikroq o'lcham
+  classify_obj_conf: 0.30           # obyekt ishonch chegarasi
+  classify_before_lag_frames: 3     # "before" kadri uchun qo'shimcha zaxira (ring chuqurligi = sustain+lag+4)
+  classify_rise_frames: 3           # odam "tiklandi" deb tasdiqlash kadrlari
+  classify_max_wait_frames: 40      # "after"ni kutish chegarasi (timeout)
+  classify_hand_radius_px: 90       # bilak atrofidagi radius (px FLOOR; box balandligiga ham moslashadi)
+  classify_ground_band_px: 70       # yer chizig'i atrofidagi tasma (px FLOOR; box balandligiga ham moslashadi)
+  classify_komish_dwell_frames: 25  # "ko'mish" uchun uzoq turish chegarasi
+
+# --- Telegram xabarnoma ---
+telegram:
+  enabled: true
+
+# --- Ollama (ixtiyoriy "aqlli tasvirlovchi") ---
+# Yoqilgan bo'lsa, hodisa rasmini lokal LLM ko'rib, o'zbekcha qisqa izoh yozadi.
+# Avval o'rnating:  ollama pull llava   (yoki  qwen2.5vl)
+ollama:
+  enabled: false
+  url: "http://localhost:11434"
+  model: "llava"
+  timeout_seconds: 30
+
+# --- Boshqa ---
+snapshots_dir: "snapshots"   # Hodisa rasmlari saqlanadigan papka
+show_window: true            # true = ekranda jonli oynani ko'rsatish (sozlash uchun qulay). 24/7 server uchun false
+save_video_clips: false      # (kelajak uchun) hodisa videolarini saqlash
+sound_alert: true            # hodisa aniqlanganda OVOZLI signal (Windows beep)
+fullscreen: true             # oynani to'liq ekranda ochish (jonli oynada 'f' bilan ham almashtiriladi)
+capture_width: 1280          # kameradan so'raladigan kenglik (kamera qo'llab-quvvatlasa). 0 = standart
+capture_height: 720          # kameradan so'raladigan balandlik. 0 = standart

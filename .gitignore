@@ -1,0 +1,42 @@
+# ---- Maxfiy tokenlar — HECH QACHON yuklamang! ----
+.env
+.env.*
+!.env.example
+
+# ---- Virtual muhit ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Yuklab olingan model fayllari (ultralytics avtomatik yuklab oladi) ----
+*.pt
+*.onnx
+*.engine
+
+# ---- Ma'lumotlar bazasi (runtime) ----
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ---- Hodisa rasmlari / generatsiya ----
+snapshots/
+captures/
+*.log
+*.tmp
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ---- OS / IDE ----
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

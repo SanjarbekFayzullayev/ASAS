@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>{% endblock %}
+{% block content %}
+<div class="camgrid">
+{% for c in cams %}
+  <div class="camcard">
+    <div class="camfeed">
+      {% if running.get(c.id) %}
+        <img src="/stream/{{c.id}}" alt="jonli">
+        <span class="recbadge"><span class="rd"></span>JONLI</span>
+      {% else %}
+        <div class="off">{{ ic.stop|safe }} To'xtatilgan</div>
+        <span class="offbadge">OFF</span>
+      {% endif %}
+    </div>
+    <div class="caminfo">
+      <div style="font-weight:700;font-size:15px">{{c.name}}</div>
+      <div class="loc">{{ ic.pin|safe }} {{ c.location or 'Joylashuv belgilanmagan' }}</div>
+      <div class="rowflex">
+        {% if running.get(c.id) %}
+          <form method="post" action="{{ url_for('cam_stop', cid=c.id) }}"><button class="btn sm ghost">{{ ic.stop|safe }} To'xtatish</button></form>
+        {% else %}
+          <form method="post" action="{{ url_for('cam_start', cid=c.id) }}"><button class="btn sm">{{ ic.play|safe }} Boshlash</button></form>
+        {% endif %}
+        <form method="post" action="{{ url_for('cam_delete', cid=c.id) }}"><button class="btn sm danger" title="O'chirish">{{ ic.trash|safe }}</button></form>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="empty">Hozircha kamera yo'q.<br>O'ng pastdagi <b>+</b> tugma orqali qo'shing.</div>
+{% endfor %}
+</div>
+
+<button class="fab" onclick="openModal()" title="Kamera qo'shish">{{ ic.plus|safe }}</button>
+
+<div class="modal" id="modal">
+  <div class="modalbox">
+    <h3>{{ ic.camera|safe }} Yangi kamera qo'shish</h3>
+    <form method="post" action="{{ url_for('add_camera') }}">
+      <label>Kamera nomi</label>
+      <input name="name" placeholder="Masalan: Kirish eshigi" required>
+      <label>Manba — USB raqami (0, 1, 2…) yoki kamera havolasi</label>
+      <input name="source" placeholder="0   yoki   http://192.168.1.10:8080/video" required>
+      <div style="color:var(--mut);font-size:12px;margin-top:3px">
+        Telefon (IP Webcam ilovasi): <b>http://IP:8080/video</b> &nbsp;·&nbsp;
+        IP kamera: <b>rtsp://login:parol@IP:554/stream</b> &nbsp;·&nbsp; Noutbuk: <b>0</b>
+      </div>
+      <label>Joylashuv — xaritadan belgilang yoki avtomatik aniqlang</label>
+      <div class="rowflex">
+        <input name="location" id="loc" placeholder="Xarita yoki 'Aniqlash' tugmasi" style="flex:1">
+        <button type="button" class="btn ghost" onclick="locate()">{{ ic.pin|safe }} Aniqlash</button>
+      </div>
+      <div id="map"></div>
+      <div class="rowflex" style="margin-top:14px">
+        <button class="btn" type="submit">{{ ic.plus|safe }} Qo'shish</button>
+        <button class="btn ghost" type="button" onclick="closeModal()">Bekor qilish</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block script %}<script src="{{ url_for('static', filename='js/cameras.js') }}"></script>{% endblock %}

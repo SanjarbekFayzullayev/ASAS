@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block head %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:18px">
+  <h3>{{ ic.chart|safe }} Ma'lumot manbasi</h3>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    {% if a.is_real %}<span class="pill p-sent">REAL MA'LUMOT (yuklangan)</span>
+    {% else %}<span class="pill" style="background:#FEF3C7;color:#B45309">NAMUNA (sintetik) ma'lumot</span>{% endif %}
+    <form method="post" action="{{ url_for('analytics_upload') }}" enctype="multipart/form-data" style="display:flex;gap:10px;align-items:center;margin:0;flex-wrap:wrap">
+      <label class="filepick">{{ ic.chart|safe }} Fayl tanlash
+        <input type="file" name="file" accept=".csv,.txt" required
+          onchange="document.getElementById('fn').textContent=this.files[0]?this.files[0].name:'Fayl tanlanmagan'"></label>
+      <span id="fn" style="color:var(--mut);font-size:13px">Fayl tanlanmagan</span>
+      <button class="btn" type="submit">CSV yuklash</button>
+    </form>
+    {% if a.is_real %}<form method="post" action="{{ url_for('analytics_reset') }}" style="margin:0">
+      <button class="btn ghost" type="submit">Namunaga qaytarish</button></form>{% endif %}
+  </div>
+  <div style="color:var(--mut);font-size:12px;margin-top:10px">
+    CSV ustunlari: <b>region, year, month, count</b> (yoki hudud, yil, oy, soni).
+    Agentlik statistikasini yuklang — tahlil va prognoz darhol real ma'lumotga moslashadi.
+  </div>
+</div>
+<div class="stats">
+  <div class="stat clickable" onclick="showDetail('total')"><div class="ic">{{ ic.chart|safe }}</div><div class="n">{{ a.grand_total }}</div><div class="l">Jami jinoyatlar (24 oy)</div><span class="more">batafsil →</span></div>
+  <div class="stat clickable" onclick="showDetail('top')"><div class="ic" style="color:var(--bad)">{{ ic.alert|safe }}</div><div class="n" style="font-size:22px;color:var(--bad)">{{ a.top_region }}</div><div class="l">Eng xavfli hudud</div><span class="more">batafsil →</span></div>
+  <div class="stat clickable" onclick="showDetail('rising')"><div class="ic" style="color:var(--warn)">{{ ic.search|safe }}</div><div class="n" style="color:var(--warn)">{{ a.rising|length }}</div><div class="l">Xavfi o'sayotgan hudud</div><span class="more">batafsil →</span></div>
+  <div class="stat clickable" onclick="showDetail('season')"><div class="ic" style="color:var(--ok)">{{ ic.clock|safe }}</div><div class="n" style="font-size:26px;color:var(--ok)">{{ a.next_season }}</div><div class="l">Kelgusi mavsum</div><span class="more">batafsil →</span></div>
+</div>
+<div class="modal" id="detailModal">
+  <div class="modalbox" style="width:580px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <h3 id="dTitle" style="margin:0"></h3>
+      <button class="btn ghost sm" onclick="closeDetail()">{{ ic.x|safe }} Yopish</button>
+    </div>
+    <div id="dBody" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<div class="two" style="margin-bottom:18px">
+  <div class="card"><h3>{{ ic.chart|safe }} Oylik dinamika (trend)</h3><canvas id="lineMonthly" height="210"></canvas></div>
+  <div class="card"><h3>{{ ic.chart|safe }} Mavsumiy taqsimot</h3><canvas id="donutSeason" height="210"></canvas></div>
+</div>
+<div class="card" style="margin-bottom:18px">
+  <h3>{{ ic.chart|safe }} Hududlar reytingi (jami jinoyatlar)</h3>
+  <canvas id="barRegion" height="330"></canvas>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">{{ ic.alert|safe }} Mavsumiy xavf xaritasi (o'rtacha jinoyat / oy)</h3>
+  <div style="overflow-x:auto"><table class="heatmap">
+    <tr><th>Hudud</th>{% for s in a.seasons %}<th>{{ s }}</th>{% endfor %}</tr>
+    {% for r in a.regions %}
+    <tr><td><b>{{ r }}</b></td>
+      {% for s in a.seasons %}
+      <td style="text-align:center;background:rgba(220,38,38,{{ '%.2f'|format(a.heat[r][s]/maxheat*0.85) }});color:{{ '#fff' if a.heat[r][s]/maxheat>0.5 else 'inherit' }}">{{ a.heat[r][s] }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12px;color:var(--mut)">
+    <span>Kam xavf</span>
+    <div style="flex:1;max-width:280px;height:11px;border-radius:6px;border:1px solid var(--line);background:linear-gradient(90deg,#fff,rgba(220,38,38,.85))"></div>
+    <span>Yuqori xavf</span>
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">{{ ic.chart|safe }} Prognoz — kelgusi mavsum ({{ a.next_season }}) uchun xavf darajasi</h3>
+  {% for f in a.forecast %}
+  <div class="fc-row">
+    <div class="fc-name">{{ f.region }}</div>
+    <div class="fc-track"><div class="fc-fill" style="width:{{ f.risk }}%;background:{{ '#DC2626' if f.level=='Yuqori' else ('#F59E0B' if f.level == "O'rta" else '#16A34A') }}"></div></div>
+    <div class="fc-val">{{ f.risk }}%</div>
+    <span class="pill {{ 'p-dismiss' if f.level=='Yuqori' else ('p-warn' if f.level == "O'rta" else 'p-sent') }}">{{ f.level }}</span>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">{{ ic.chart|safe }} Profilaktika tavsiyalari (mavsum bo'yicha)</h3>
+  {% set scol = {'Bahor':'#16A34A','Yoz':'#EF4444','Kuz':'#F59E0B','Qish':'#3B82F6'} %}
+  <div class="reco-grid">
+  {% for s in a.seasons %}
+    <div class="reco-card" style="border-top:3px solid {{ scol[s] }}">
+      <div class="reco-head"><span class="reco-dot" style="background:{{ scol[s] }}"></span>{{ s }}</div>
+      <div class="reco-sub">E'tibor qaratish kerak:</div>
+      {% for r in a.reco[s] %}<span class="reco-chip">{{ r }}</span>{% endfor %}
+    </div>
+  {% endfor %}
+  </div>
+  <div style="color:var(--mut);font-size:12px;margin-top:14px">Bu tahlil agentlikka resurslarni aniq hududlarga yo'naltirish va profilaktikani oldindan rejalashtirishga yordam beradi (SaaS xizmat).</div>
+</div>
+
+<script>const ASAS_DATA = {{ data_json|safe }};</script>
+{% endblock %}
+{% block script %}<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>{% endblock %}
