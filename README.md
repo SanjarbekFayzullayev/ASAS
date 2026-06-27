@@ -190,10 +190,5 @@ AiHakatonProjekt/
     └── pipeline.py      # Hammasini bog'lovchi quvur
 ```
 
-## ❓ Tez-tez uchraydigan muammolar
 
-- **"Token yoki chat ID yo'q"** → `.env` faylni to'ldiring. (Tizim baribir ishlaydi, faqat xabar konsolga chiqadi.)
-- **Kamera ochilmaydi** → `test_camera.py` bilan to'g'ri raqam/manzilni toping.
-- **Juda sekin** → `config.yaml` da `process_every_n_frames` ni 3-4 qiling yoki `imgsz: 480`.
-- **`pip install` xato beradi** → Python 3.12 ishlatayotganingizni tekshiring (3.14 emas).
 ```
